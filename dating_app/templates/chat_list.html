@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load static %}
+{% load chat_filters %}
+
+{% block content %}
+<div class="chat-list-container">
+    <h2>My Chats</h2>
+    {% for chat in chats %}
+    <div class="chat-card">
+        <a href="{% url 'chat_detail' chat.id %}">
+            Chat with {{ chat|chat_partner_name:request.user }}
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

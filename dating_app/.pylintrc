@@ -1,0 +1,7 @@
+[MASTER]
+# Путь к вашим моделям, например, "myapp.models"
+init-hook='import sys; sys.path.append("path/to/your/models")'
+
+[TYPECHECK]
+# Игнорируем предупреждение E1101 для всех моделей Django
+ignored-classes=models.Manager

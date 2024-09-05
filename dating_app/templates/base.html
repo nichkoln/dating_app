@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dating App{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'profiles/style.css' %}">
+</head>
+<body>
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <div class="tab-bar">
+        <div class="tab-item home">
+            <a href="{% url 'profile_list' %}">🏠</a>
+        </div>
+        <div class="tab-item dating">
+            <a href="{% url 'like_list' %}">❤️</a>
+        </div>
+        <div class="tab-item chat">
+            <a href="{% url 'chat_list' %}">💬</a>
+        </div>
+        <div class="tab-item profile">
+            <a href="{% url 'my_profile' %}">
+                <img class="profile-icon" src="{% static 'vectors/Profile1_x2.svg' %}" />
+                <div class="ellipse"></div>
+            </a>
+        </div>
+    </div>
+    <div class="home-indicator"></div>
+    <script>
+        window.csrfToken = '{{ csrf_token }}';
+    </script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="profile-list-container">
+    {% for profile in profiles %}
+    <div class="profile-card" id="profile-{{ profile.id }}">
+        <div class="profile-photo">
+            {% if profile.photo %}
+                <img src="{{ profile.photo.url }}" alt="{{ profile.first_name }} {{ profile.last_name }}'s photo">
+            {% else %}
+                <img src="{% static 'profiles/default_photo.jpg' %}" alt="Default photo">
+            {% endif %}
+        </div>
+        <div class="profile-info">
+            <h3>{{ profile.first_name }} {{ profile.last_name }}</h3>
+            <p>{{ profile.bio }}</p>
+        </div>
+        <div class="reactions-icons">
+            <div class="circle-button swipe-left-btn" data-profile-id="{{ profile.id }}">❌</div>
+            <div class="circle-button bet-button" data-profile-id="{{ profile.id }}">💵</div>
+            <div class="circle-button swipe-right-btn" data-profile-id="{{ profile.id }}">💚</div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Модальное окно для ставок -->
+<div id="betModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Place Your Bet</h2>
+        <p>Bet that this user will like you back!</p>
+        <button class="confirm-bet-btn">Place Bet</button>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.swipe-left-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const profileId = btn.getAttribute('data-profile-id');
+            swipeProfile(profileId, 'left');
+        });
+    });
+
+    document.querySelectorAll('.swipe-right-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const profileId = btn.getAttribute('data-profile-id');
+            swipeProfile(profileId, 'right');
+        });
+    });
+
+    document.querySelectorAll('.bet-button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const profileId = btn.getAttribute('data-profile-id');
+            showBetModal(profileId);
+        });
+    });
+
+    function swipeProfile(profileId, direction) {
+        console.log(`Swiping profile ${profileId} to the ${direction}`);
+        const profileCard = document.getElementById(`profile-${profileId}`);
+        profileCard.classList.add(`swipe-${direction}`);
+
+        setTimeout(() => {
+            profileCard.remove();
+        }, 1000); // Remove the card after the animation completes
+
+        // AJAX request to update profile swipe action
+        fetch(`/profiles/${profileId}/swipe/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ direction })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Profile swiped successfully:', data);
+        })
+        .catch(error => {
+            console.error('Error swiping profile:', error);
+        });
+    }
+
+    // Модальное окно
+    const modal = document.getElementById('betModal');
+    const closeModal = modal.querySelector('.close');
+
+    closeModal.onclick = function () {
+        modal.style.display = 'none';
+    }
+
+    window.onclick = function (event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    function showBetModal(profileId) {
+        modal.style.display = 'flex';
+        modal.querySelector('.confirm-bet-btn').onclick = function () {
+            console.log(`Bet placed on profile ${profileId}`);
+            modal.style.display = 'none';
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="like-list-container">
+    <h2>People Who Liked You</h2>
+    {% for like in likes_recieved %}
+    <div class="profile-card" id="profile-{{ like.from_user.id }}">
+        <div class="profile-photo">
+            {% if like.from_user.photo %}
+                <img src="{{ like.from_user.photo.url }}" alt="{{ like.from_user.first_name }} {{ like.from_user.last_name }}'s photo">
+            {% else %}
+                <img src="{% static 'profiles/default_photo.jpg' %}" alt="Default photo">
+            {% endif %}
+        </div>
+        <div class="profile-info">
+            <h3>{{ like.from_user.first_name }} {{ like.from_user.last_name }}</h3>
+            <p>{{ like.from_user.bio }}</p>
+        </div>
+        <div class="reactions-icons">
+            <div class="circle-button swipe-left-btn" data-profile-id="{{ like.from_user.id }}">❌</div>
+            <div class="circle-button swipe-right-btn" data-profile-id="{{ like.from_user.id }}">💚</div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.swipe-left-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const profileId = btn.getAttribute('data-profile-id');
+            swipeProfile(profileId, 'left');
+        });
+    });
+
+    document.querySelectorAll('.swipe-right-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const profileId = btn.getAttribute('data-profile-id');
+            swipeProfile(profileId, 'right');
+        });
+    });
+
+    function swipeProfile(profileId, direction) {
+        console.log(`Swiping profile ${profileId} to the ${direction}`);
+        const profileCard = document.getElementById(`profile-${profileId}`);
+        profileCard.classList.add(`swipe-${direction}`);
+
+        setTimeout(() => {
+            profileCard.remove();
+        }, 1000); // Remove the card after the animation completes
+
+        // AJAX request to update profile swipe action
+        fetch(`/profiles/${profileId}/swipe/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ direction })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Profile swiped successfully:', data);
+        })
+        .catch(error => {
+            console.error('Error swiping profile:', error);
+        });
+    }
+});
+</script>
+{% endblock %}

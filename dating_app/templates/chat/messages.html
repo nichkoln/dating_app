@@ -1,0 +1,11 @@
+{% for message in chat.messages.all %}
+<div class="message {% if message.sender == request.user %}outgoing{% else %}incoming{% endif %}">
+    {% if message.text %}
+    <p>{{ message.text }}</p>
+    {% endif %}
+    {% if message.image %}
+    <img src="{{ message.image.url }}" alt="Image">
+    {% endif %}
+    <span class="timestamp">{{ message.created_at }}</span>
+</div>
+{% endfor %}

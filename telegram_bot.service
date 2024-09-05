@@ -1,0 +1,12 @@
+[Unit]
+Description=Telegram Bot
+After=network.target
+
+[Service]
+User=django
+WorkingDirectory=/home/django/django_venv/src
+ExecStart=/home/django/django_venv/bin/python /home/django/django_venv/src/bot.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

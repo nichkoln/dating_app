@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<h2>Login with Telegram</h2>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+    Telegram.WebApp.ready();
+
+    // Функция для отправки данных аутентификации на сервер
+    function authenticate(user) {
+        const authUrl = '{% url "telegram_login" %}';
+        const authData = new URLSearchParams(user).toString();
+
+        fetch(authUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify(user)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = data.redirect_url;
+            } else {
+                console.error('Auth error:', data.message);
+            }
+        })
+        .catch(error => console.error('Fetch error:', error));
+    }
+
+    // Инициализация виджета Telegram и определение функции аутентификации
+    window.TelegramLoginWidget = function(user) {
+        console.log('Telegram auth:', user);
+        if (!user) {
+            console.error('No user data received from Telegram');
+            return;
+        }
+        authenticate(user);
+    }
+
+    Telegram.WebApp.onEvent('auth', TelegramLoginWidget);
+
+    console.log('Script loaded');  // Проверка загрузки скрипта
+</script>
+
+<button onclick="Telegram.WebApp.requestLogin()">
+    Войти через Telegram
+</button>
+
+{% endblock %}
