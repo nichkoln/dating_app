@@ -2,8 +2,8 @@ import logging
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo # pylint: disable=no-name-in-module
 from telegram.ext import Application, CommandHandler, CallbackContext
 
-BOT_TOKEN = '7229035901:AAFr_whW0CAGG0wXjtse-buUz8bf9Cln5nw'
-WEB_APP_URL = 'https://www.dtxapp.ru/login'  # URL вашего Web App
+BOT_TOKEN = ''
+WEB_APP_URL = ''  
 
 # Логирование
 logging.basicConfig(
